@@ -1,0 +1,233 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>萌宠英语乐园</title>
+  <link rel="stylesheet" href="css/style.css?v=6">
+
+</head>
+<body>
+  <div id="app">
+
+    <!-- ====== 首页 ====== -->
+    <div id="page-home" class="page active">
+      <div class="home-container">
+        <!-- 设计稿风格首页顶部：头像+用户名(左) | 图标行(右) -->
+        <div class="dh-top-bar">
+          <div class="dh-user-area">
+            <div class="dh-avatar-ring">
+              <div class="dh-avatar-placeholder" id="dhPetPlaceholder">🥚</div>
+              <img id="dhPetAvatarImg" class="dh-avatar-img" style="display:none">
+            </div>
+            <span class="dh-user-name" id="dhPetName">尚未选择萌宠</span>
+          </div>
+</div>
+        <!-- 连续记录区 -->
+        <div class="dh-stats-bar">
+          <span class="dh-stat-block">
+            <span class="dh-stat-icon">❤️</span>
+            <span class="dh-stat-val" id="dhStatLives">0</span>
+          </span>
+          <span class="dh-stat-block">
+            <span class="dh-stat-icon">🌱</span>
+            <span class="dh-stat-val" id="dhStatQuestions">0</span>
+          </span>
+          <span class="dh-stat-block">
+            <span class="dh-stat-icon">🔥</span>
+            <span class="dh-stat-val" id="dhStatStreak">0</span>
+          </span>
+          <span class="dh-stat-block">
+            <span class="dh-stat-icon">⭐</span>
+            <span class="dh-stat-val" id="dhStatStars">0</span>
+          </span>
+        </div>
+        <div class="resume-banner" id="resumeBanner" style="display:none" onclick="resumeQuiz()">
+          <span class="resume-icon">▶</span>
+          <div class="resume-text"><div class="resume-title">继续答题</div><div class="resume-sub" id="resumeSub">有未完成的答题</div></div>
+        </div>
+        <!-- 主要操作卡片 -->
+        <div class="dh-actions">
+          <div class="dh-action-card" onclick="goQuiz()">
+            <div class="dh-action-icon dh-action-quiz">📝</div>
+            <div class="dh-action-title">开始答题</div>
+            <div class="dh-action-sub">中英互译挑战</div>
+          </div>
+          <div class="dh-action-card" onclick="goPage('choose-egg')">
+            <div class="dh-action-icon dh-action-egg">🥚</div>
+            <div class="dh-action-title">选择萌宠</div>
+            <div class="dh-action-sub">领养你的小伙伴</div>
+          </div>
+          <div class="dh-action-card" onclick="goPage('pet-house')">
+            <div class="dh-action-icon dh-action-pet">🏠</div>
+            <div class="dh-action-title">宠物屋</div>
+            <div class="dh-action-sub">看看你的萌宠</div>
+          </div>
+        </div>
+        <!-- 底部功能按钮 -->
+        <div class="dh-bottom-actions">
+          <button class="dh-bottom-btn" onclick="goPage('review')" title="错题本">📖</button>
+          <button class="dh-bottom-btn" onclick="toggleAI()" title="AI 设置">🤖</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 选蛋页 ====== -->
+    <div id="page-choose-egg" class="page">
+      <div class="page-header"><button class="back-btn" onclick="goPage('home')">←</button><h2>🥚 选择萌宠蛋</h2></div>
+      <p class="page-subtitle">点击一个蛋，迎接你的小伙伴</p>
+      <div class="egg-grid" id="eggGrid"></div>
+      <div class="modal" id="eggModal" style="display:none">
+        <div class="modal-overlay" onclick="closeEggModal()"></div>
+        <div class="modal-content">
+          <div class="modal-egg-image"><img id="modalEggImg" class="modal-egg-img"></div>
+          <h3 id="modalEggName"></h3>
+          <p id="modalEggDesc"></p>
+          <div class="name-input-area"><label for="petNameInput">给它取个名字：</label><input type="text" id="petNameInput" maxlength="8" class="name-input" title="取个名字"></div>
+          <div class="modal-actions"><button class="btn btn-secondary" onclick="closeEggModal()">再想想</button><button class="btn btn-primary" onclick="confirmChooseEgg()">就决定是你了！</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 答题页 ====== -->
+    <div id="page-quiz" class="page">
+      <div class="quiz-header">
+        <button class="back-btn" onclick="exitQuiz()">✕</button>
+        <div class="lives-display" id="quizLives"></div>
+        <span class="score-badge" id="quizScore">⭐ 0</span>
+      </div>
+      <div class="ai-toggle">
+        <label class="toggle-label" onclick="toggleAI()">
+          <input type="checkbox" id="aiToggleCheckbox" style="display:none">
+          <span class="toggle-text">🤖 AI 评测</span>
+          <div class="toggle-switch active" id="aiToggle"><div class="toggle-knob" id="toggleKnob"></div></div>
+        </label>
+        <label class="toggle-label" style="margin-left:15px" onclick="toggleAIGenerate()">
+          <input type="checkbox" id="aiGenToggleCheckbox" style="display:none">
+          <span onclick="toggleApiSettings();event.stopPropagation()" style="cursor:pointer;margin-left:4px;font-size:18px;vertical-align:middle" title="API 设置">⚙️</span>
+          <div class="toggle-switch" id="aiGenToggle"><div class="toggle-knob" id="aiGenKnob"></div></div>
+        </label>
+      </div>
+      <div class="streak-banner" id="streakBanner" style="display:none"></div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div><span class="progress-text" id="progressText">1 / 10</span></div>
+
+      <div class="question-card">
+        <div class="quiz-top-bar"><div class="difficulty-tag" id="diffTag">四级</div><div class="pos-tag" id="posTag">📖 名词</div></div>
+        <div class="direction-label" id="directionLabel">中文 → 英文</div>
+        <div class="phonetic-label" id="phoneticLabel" style="display:none"></div>
+        <div class="question-text" id="questionText">你好</div>
+        <div class="answer-area"><input type="text" id="answerInput" class="answer-input" title="输入答案" placeholder="在此输入答案..." maxlength="200"></div>
+        <div class="hint-area" id="hintArea" style="display:none">💡 提示：<span id="hintText"></span></div>
+        <div class="ai-status" id="aiStatus" style="display:none"></div>
+        <button class="btn btn-primary submit-btn" id="submitBtn" onclick="submitAnswer()">确认答案</button>
+            <button class="btn btn-secondary skip-btn" id="skipBtn" onclick="dontKnow()" style="margin-top:8px">❓ 不认识</button>
+        <div class="feedback-area" id="feedbackArea" style="display:none">
+          <div class="feedback-icon" id="feedbackIcon"></div>
+          <div class="feedback-text" id="feedbackText"></div>
+          <div class="correct-answer" id="correctAnswer"></div>
+        </div>
+      </div>
+      <button class="btn btn-primary next-btn" id="nextBtn" style="display:none" onclick="nextQuestion()">下一题 ▶</button>
+          <!-- ====== AI 设置面板 ====== -->
+      <div class="ai-settings-panel" id="aiSettingsPanel" style="display:none">
+      <div style="background:white;border-radius:16px;padding:16px;margin-top:12px;box-shadow:0 2px 10px rgba(0,0,0,0.06)">
+        <h4 style="font-size:14px;margin-bottom:10px">🤖 AI 服务设置</h4>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+          <select id="apiProviderSelect" style="flex:1;min-width:120px;padding:8px 12px;border:2px solid var(--secondary);border-radius:10px;font-size:13px;outline:none;background:white">
+            <option value="tongyi">通义千问</option>
+            <option value="openai">OpenAI</option>
+            <option value="deepseek">DeepSeek</option>
+            <option value="siliconflow">硅基流动</option>
+          </select>
+          <input type="password" id="apiKeyInput" placeholder="输入 API Key" style="flex:2;min-width:150px;padding:8px 12px;border:2px solid var(--secondary);border-radius:10px;font-size:13px;outline:none;box-sizing:border-box">
+          <button class="btn btn-primary" onclick="saveApiKeySetting()" style="padding:8px 16px;font-size:13px;white-space:nowrap">保存</button>
+        <p style="font-size:11px;color:#999;margin:6px 0 0 0">🔒 API Key 仅保存在本地浏览器，请勿在公共电脑使用</p>
+        </div>
+        <p id="apiKeyStatus" style="font-size:12px;color:var(--success);margin:0;display:none"></p>
+      </div>
+    </div>
+    </div>
+
+    <!-- ====== 结算页 ====== -->
+    <div id="page-result" class="page">
+      <div class="result-header"><div class="result-icon">🏆</div><h2 class="result-title">答题结束！</h2><p class="result-level" id="resultLevel"></p></div>
+      <div class="stats-card">
+        <div class="stat-row">
+          <div class="stat-item"><div class="stat-value correct" id="resultCorrect">0</div><div class="stat-label">正确</div></div>
+          <div class="stat-divider"></div>
+          <div class="stat-item"><div class="stat-value wrong" id="resultWrong">0</div><div class="stat-label">错误</div></div>
+          <div class="stat-divider"></div>
+          <div class="stat-item"><div class="stat-value accuracy-text" id="resultAccuracy">0%</div><div class="stat-label">正确率</div></div>
+        </div>
+        <div class="total-score"><span class="score-icon">⭐</span><span class="score-value" id="resultScore">0</span><span class="score-label">总积分</span></div>
+      </div>
+      <div class="correction-section" id="correctionSection" style="display:none"><h3 class="section-title">📝 语法纠错与改进建议</h3><div id="correctionList"></div></div>
+      <div class="perfect-banner" id="perfectBanner" style="display:none"><span class="perfect-icon">🎊</span><span class="perfect-text">全部答对！</span></div>
+      <div class="result-actions"><button class="btn btn-primary" onclick="playAgain()">再来一局</button><button class="btn btn-secondary" onclick="goPage('home')">返回首页</button></div>
+    </div>
+
+    <!-- ====== 宠物屋 ====== -->
+    <div id="page-pet-house" class="page">
+      <div class="page-header"><button class="back-btn" onclick="goPage('home')">←</button><h2>🏠 宠物屋</h2></div>
+      <div class="pet-display">
+        <div class="pet-image-card"><img id="petHouseImg" class="pet-image"></div>
+        <h3 id="petHouseName"></h3>
+        <p id="petHouseDesc"></p>
+      </div>
+      <div class="pet-status-bar">
+        <div class="pet-status-item"><span class="status-label">😊 心情</span><div class="status-bar-bg"><div class="status-bar-fill happiness" id="happinessFill" style="width:100%"></div></div><span class="status-num" id="happinessNum">100%</span></div>
+        <div class="pet-status-item"><span class="status-label">🍽️ 饱腹</span><div class="status-bar-bg"><div class="status-bar-fill fullness" id="fullnessFill" style="width:100%"></div></div><span class="status-num" id="fullnessNum">100%</span></div>
+      </div>
+      <div class="interaction-buttons">
+        <div class="interaction-btn" onclick="showFeedPanel()"><span class="interaction-icon">🍗</span><span class="interaction-label">投喂</span></div>
+        <div class="interaction-btn" onclick="showPlayPanel()"><span class="interaction-icon">🎾</span><span class="interaction-label">玩耍</span></div>
+        <div class="interaction-btn" onclick="goPage('shop')"><span class="interaction-icon">🛒</span><span class="interaction-label">商城</span></div>
+      </div>
+      <div class="action-panel" id="feedPanel" style="display:none"><h4>🍗 选择食物投喂</h4><div class="items-grid" id="foodGrid"></div><div class="empty-tip" id="foodEmpty" style="display:none">背包空空的</div><button class="btn btn-secondary" onclick="closePanels()">关闭</button></div>
+      <div class="action-panel" id="playPanel" style="display:none"><h4>🎾 选择玩具玩耍</h4><div class="items-grid" id="toyGrid"></div><div class="empty-tip" id="toyEmpty" style="display:none">背包空空的</div><button class="btn btn-secondary" onclick="closePanels()">关闭</button></div>
+      <div style="margin-top: 30px; text-align: center; border-top: 1px solid var(--secondary); padding-top: 16px">
+        <button class="btn btn-secondary" onclick="resetAllData()" style="font-size: 13px; padding: 8px 20px; opacity: 0.6">
+          ⚠️ 重置所有数据
+        </button>
+        <p style="font-size: 11px; color: var(--text-light); margin-top: 8px">清除所有本地数据，恢复初始状态</p>
+      </div>
+    </div>
+
+    <!-- ====== 商城 ====== -->
+    <div id="page-shop" class="page">
+      <div class="page-header"><button class="back-btn" onclick="goPage('home')">←</button><h2>🛒 积分商城</h2><span class="score-badge" id="shopScore">⭐ 0</span></div>
+      <div class="tab-bar"><div class="tab-item active" onclick="switchShopTab('food')">🍗 食品</div><div class="tab-item" onclick="switchShopTab('toy')">🎾 玩具</div></div>
+      <div class="shop-grid" id="shopFoodGrid"></div>
+      <div class="shop-grid" id="shopToyGrid" style="display:none"></div>
+    </div>
+
+    <!-- ====== 错题本 ====== -->
+    <div id="page-review" class="page">
+      <div class="page-header"><button class="back-btn" onclick="goPage('home')">←</button><h2>📖 错题本</h2></div>
+      <p class="page-subtitle">这些是你答错或不认识的题目，多复习几次吧！</p>
+      <div id="reviewEmpty" class="empty-state" style="display:none">
+        <div class="empty-icon">🎉</div>
+        <div class="empty-text">还没有错题，继续加油！</div>
+      </div>
+      <div class="review-list" id="reviewList"></div>
+      <button class="btn btn-secondary" style="width:100%;margin-top:var(--space-xl)" id="clearReviewBtn" onclick="clearReview()">🗑️ 清空错题本</button>
+
+</div>
+
+  </div>
+    <script src="js/gameData.js?v=6"></script>
+  <script src="js/imported_bank.js?v=1"></script>
+  <script src="js/aiService.js?v=4"></script>
+  <script src="js/app.js?v=7"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
